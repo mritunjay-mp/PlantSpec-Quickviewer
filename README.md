@@ -84,7 +84,7 @@ Supported file types:
 Thermal images are converted to Celsius using:
 
 ```text
-Celsius = raw_pixel_value / 100 - 273.15
+Celsius = raw_pixel_value / 100 - 273.15  (However, it depends on your image temperature calculation formula. Please check the formula, unless change at the code!)
 ```
 
 ## Output Files
