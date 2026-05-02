@@ -1,0 +1,102 @@
+PlantSpec Quickviewer - Quick Start
+
+1. Start the app
+   Windows package:
+     Double-click PlantSpecQuickviewer.exe.
+
+   Source package:
+     Double-click run_plantspec_quickviewer.bat, or run:
+     python plantspec_quickviewer.py
+
+2. Try the included demo data
+   A small demo dataset is included in:
+     demo_data/
+
+   In the app:
+     1) Click Open Dataset Folder.
+     2) Select the demo_data folder.
+     3) The app should load two captures:
+        - Cabbage / control / IMG_0003
+        - Cabbage / test / IMG_0000
+     4) Preview Plant Mask, draw ROI boxes, Save Sample, then Run Analysis.
+
+3. Input folder format
+   Recommended simple format:
+     YourDataset/
+       Cabbage_control_IMG_0003/
+         blue.tif
+         green.tif
+         red.tif
+         nir.tif
+         rededge.tif
+         thermal.tif
+       Cabbage_test_IMG_0005/
+         blue.tif
+         green.tif
+         red.tif
+         nir.tif
+         rededge.tif
+         thermal.tif
+
+   The app also accepts .tiff, .png, .jpg, .jpeg, .bmp, .npy, and .npz files
+   when the band names are blue, green, red, nir, rededge, and thermal.
+
+   MicaSense-style numbered format is also supported:
+     Cabbage/000/control/IMG_0003_1.tif  = Blue
+     Cabbage/000/control/IMG_0003_2.tif  = Green
+     Cabbage/000/control/IMG_0003_3.tif  = Red
+     Cabbage/000/control/IMG_0003_4.tif  = NIR
+     Cabbage/000/control/IMG_0003_5.tif  = Red edge
+     Cabbage/000/control/IMG_0003_7.tif  = Thermal
+
+4. Create samples
+   Choose Mask method.
+   Click Preview Plant Mask.
+   Adjust Mask threshold if needed.
+   Draw an ROI.
+   Enter Plant name, Group name, and Sample no.
+   Click Save Sample.
+   Repeat for all control/test samples.
+
+5. Run analysis
+   Click Run Analysis.
+   Review the preflight summary.
+   Click Yes.
+
+6. Output folder structure
+   The result folder opens automatically after analysis.
+   You can also click Open Last Result Folder.
+
+   Each run is saved under:
+     paper_figure_outputs/plantspec_quickviewer/runs/YYYYMMDD_HHMMSS/
+
+   Main output folders:
+     results_plot/
+       all_indices_barplots.png
+       ExG_barplot.png
+       NDVI_barplot.png
+       GNDVI_barplot.png
+       NDRE_barplot.png
+       SAVI_barplot.png
+       OSAVI_barplot.png
+       CWSI_barplot.png
+       Thermal_C_barplot.png
+
+     results_csv/
+       summary_results.csv
+       region_level_results.csv
+       full_roi_analysis_results.xlsx
+       columns_description.csv
+       README_results.txt
+
+     stepwise/
+       One PNG per saved sample showing:
+       RGB, plant mask, ROI, vegetation-index maps, CWSI, and Thermal_C.
+
+7. License
+   This app is distributed under the MIT License.
+   Keep LICENSE.txt and THIRD_PARTY_NOTICES.txt with the executable when sharing.
+   For detailed instructions, open USER_MANUAL_EN.pdf or USER_MANUAL_KR.pdf.
+
+
+
