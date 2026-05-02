@@ -9,35 +9,36 @@ https://sites.google.com/view/mfminc/home
 
 ## Overview
 
+PlantSpec Quickviewer is a lightweight desktop tool for quick ROI-based multispectral plant image analysis. It helps users inspect aligned RGB previews, define plant regions manually, calculate vegetation and thermal indices, and export publication-ready plots and CSV/XLSX results without using complex remote sensing software.
 Plant growth experiments often require repeated steps: organizing multispectral bands, checking plant segmentation, defining regions of interest, calculating indices, and creating figures for reports or manuscripts. PlantSpec Quickviewer combines these steps into one simple GUI.
-
 Users can view an RGB image, preview the plant mask, adjust the threshold, draw ROI boxes or polygons, assign plant names, group names, and sample numbers, and then run the full analysis. The software calculates ExG, NDVI, GNDVI, NDRE, SAVI, OSAVI, CWSI, and temperature in Celsius, then saves group comparison plots and raw data tables.
 
 ## Key Features
 
-- Load multispectral image folders and generate RGB previews
-- Preview ExG-based plant masks and adjust segmentation threshold
-- Draw ROI boxes or polygons directly on the image
-- Assign custom plant names, group names, and sample numbers
-- Compare treatment groups such as control vs test
-- Calculate ROI-level and group-level vegetation indices
-- Convert thermal raw pixels to Kelvin and Celsius
-- Calculate CWSI using wet/dry reference scaling
-- Save stepwise PNGs showing RGB, plant mask, ROI, index maps, CWSI, and temperature maps
-- Generate matplotlib-based publication-style bar plots
-- Export CSV and XLSX result tables
-- Available as a Windows executable and Python source package
+Load multispectral image(or hyperspectral image, but only related to vegetation indices)  and generate RGB previews
+Preview ExG-based plant masks and adjust segmentation threshold(scroll up and down to find the optimal plant mask)
+Draw ROI boxes or polygons directly on the image
+Assign custom plant names, group names, and sample numbers
+Compare treatment groups such as control vs test
+Calculate ROI-level and group-level vegetation indices
+Convert thermal raw pixels to Kelvin and Celsius
+Calculate CWSI using wet/dry reference scaling
+Save stepwise PNGs showing RGB, plant mask, ROI, index maps, CWSI, and temperature maps
+Generate matplotlib-based publication-style bar plots
+Export CSV and XLSX result tables
+Available as a Windows executable and Python source package
 
 ## When To Use It
 
 PlantSpec Quickviewer is useful when you need to:
 
-- Compare crop responses between fertilizer, biochar, irrigation, stress, or treatment groups
-- Check experimental image results immediately after or during field experiments
-- Perform ROI-based vegetation index analysis without GIS or remote sensing software
-- Analyze only user-selected plots, beds, or plant regions
-- Produce quick figures and data tables for manuscripts, reports, and lab notes
-- Provide a beginner-friendly multispectral analysis workflow to non-programmers
+Analyze Micasense Altum-PT (multispectral + Thermal) 
+Analyze image combination from different device(we can adjust the orientation)
+Check experimental image results immediately after or during field experiments
+Perform ROI-based vegetation index analysis without GIS or remote sensing software
+Analyze only user-selected plots, beds, or plant regions
+Produce quick figures and data tables for manuscripts, reports, and lab notes
+Provide a beginner-friendly multispectral analysis workflow to non-programmers
 
 It is not intended to replace high-end orthomosaic generation, large-scale geospatial analysis, advanced radiometric calibration workflows, or machine learning classification pipelines. Its main value is fast, field-friendly ROI analysis.
 
