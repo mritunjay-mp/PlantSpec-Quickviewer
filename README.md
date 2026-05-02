@@ -2,6 +2,8 @@
 
 PlantSpec Quickviewer is a lightweight desktop tool for quick ROI-based multispectral plant image analysis. It helps users inspect aligned RGB previews, define plant regions manually, calculate vegetation and thermal indices, and export publication-ready plots and CSV/XLSX results without using complex remote sensing software.
 
+This is version 1, python 3.9 is strongly recommended.
+
 You can visit our company's website for more contact such as bug or suggestion.
 https://sites.google.com/view/mfminc/home
 
