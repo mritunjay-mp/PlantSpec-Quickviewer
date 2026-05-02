@@ -56,7 +56,7 @@ YourDataset/
     nir.tif
     rededge.tif
     thermal.tif
-```
+MicaSense-style numbered files are also supported.
 
 MicaSense-style numbered files are also supported.
 
@@ -93,7 +93,7 @@ paper_figure_outputs/
         results_plot/
         results_csv/
         stepwise/
-```
+results_plot/ contains publication-style PNG plots.
 
 `results_plot/` contains publication-style PNG plots.
 
@@ -170,7 +170,20 @@ PlantSpec_Quickviewer_Linux_x64.zip
 PlantSpec_Quickviewer_RPi_Jetson_ARM64.zip
 ```
 
-## License
+Basic Workflow
+Run PlantSpecQuickviewer.exe.
+Click Open Dataset Folder.
+Select your multispectral image dataset.
+Click Preview Plant Mask.
+Adjust the threshold until the plant area is properly segmented.
+Draw an ROI on the RGB image.
+Enter Plant name, Group name, and Sample no.
+Click Save Sample.
+Repeat for all treatment groups and samples.
+Click Run Analysis.
+Review the exported plots and result tables in the automatically opened result folder.
+Calculated Indices
+PlantSpec Quickviewer calculates:
 
 PlantSpec Quickviewer is distributed under the MIT License. Users may use, modify, and redistribute the software. When redistributing the program, include `LICENSE.txt` and `THIRD_PARTY_NOTICES.txt`.
 
