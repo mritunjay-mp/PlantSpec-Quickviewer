@@ -56,10 +56,11 @@ gcloud compute ssh "$VM" \
     fi
     source .venv/bin/activate
     pip install -q -r requirements-cloud.txt
-    pkill -f 'uvicorn api.main:app.*$PORT' || true
+    fuser -k ${PORT}/tcp 2>/dev/null || true
     sleep 1
-    nohup uvicorn api.main:app --host 127.0.0.1 --port $PORT > /tmp/plantspec.log 2>&1 &
-    sleep 3
+    setsid .venv/bin/uvicorn api.main:app --host 127.0.0.1 --port $PORT \
+      > /tmp/plantspec.log 2>&1 < /dev/null &
+    sleep 4
     echo '--- health ---'
     curl -sS http://127.0.0.1:$PORT/api/health
     echo
