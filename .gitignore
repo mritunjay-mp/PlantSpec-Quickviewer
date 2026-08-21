@@ -17,3 +17,6 @@ paper_figure_outputs/
 
 .DS_Store
 Thumbs.db
+
+.venv/
+venv/

@@ -162,6 +162,22 @@ The package includes a small `demo_data/` folder. New users can load this folder
 
 The demo contains one Cabbage control capture and one Cabbage test capture. Select `demo_data/` with `Open Dataset Folder` to try the software immediately.
 
+### Headless demo analysis (no GUI)
+
+To run the bundled demo analysis from the command line:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python scripts/run_demo_analysis.py
+```
+
+Results are written under `paper_figure_outputs/plantspec_quickviewer/runs/<timestamp>/` with
+`results_plot/`, `results_csv/`, and `stepwise/` folders.
+
+See `CONTRIBUTORS.md` for upstream authors and additional contributors.
+
 ## Downloads
 
 Windows users can download `PlantSpec_Quickviewer_Windows.zip`, unzip it, and run `PlantSpecQuickviewer.exe`.
