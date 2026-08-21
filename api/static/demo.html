@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlantSpec Quickviewer Demo</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#0f0f13; color:#e2e2e8; }
+  .container { max-width:1100px; margin:0 auto; padding:28px 20px 48px; }
+  h1 { font-size:22px; font-weight:700; color:#f0f0f5; margin-bottom:6px; }
+  .subtitle { font-size:13px; color:#888; margin-bottom:8px; line-height:1.5; }
+  .status { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; margin-bottom:20px; font-size:13px; font-weight:600; background:rgba(66,165,245,0.08); border:1px solid rgba(66,165,245,0.2); color:#90caf9; }
+  .status.error { background:rgba(244,67,54,0.08); border-color:rgba(244,67,54,0.2); color:#ef9a9a; }
+  .status.success { background:rgba(0,230,118,0.08); border-color:rgba(0,230,118,0.2); color:#69f0ae; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+  @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+  .card { background:#18181f; border:1px solid #2a2a35; border-radius:12px; overflow:hidden; }
+  .card-header { padding:14px 18px; border-bottom:1px solid #2a2a35; font-size:12px; font-weight:700; color:#aaa; text-transform:uppercase; letter-spacing:0.8px; }
+  .card-body { padding:16px 18px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  tr { border-bottom:1px solid #1e1e28; }
+  tr:last-child { border-bottom:none; }
+  td { padding:8px 0; }
+  td:first-child { color:#888; width:38%; font-weight:600; }
+  td:last-child { font-variant-numeric:tabular-nums; }
+  .figure-grid, .stepwise { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .figure-grid img, .stepwise img { width:100%; border-radius:8px; border:1px solid #2a2a35; background:#111; }
+  @media (max-width:700px) { .figure-grid, .stepwise { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>PlantSpec Quickviewer</h1>
+  <p class="subtitle">Bundled Cabbage control vs test multispectral demo — NDVI, CWSI, thermal and other ROI indices.</p>
+  <div id="status" class="status">Loading demo analysis…</div>
+  <div class="grid">
+    <div class="card"><div class="card-header">Cabbage / control</div><div class="card-body"><table id="control-table"></table></div></div>
+    <div class="card"><div class="card-header">Cabbage / test</div><div class="card-body"><table id="test-table"></table></div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px;"><div class="card-header">Group comparison plots</div><div class="card-body figure-grid" id="plots"></div></div>
+  <div class="card"><div class="card-header">Stepwise workflow</div><div class="card-body stepwise" id="stepwise"></div></div>
+</div>
+<script>
+const statusEl = document.getElementById('status');
+const fmt = (v) => (v == null || Number.isNaN(v)) ? '—' : Number(v).toFixed(3);
+function renderTable(el, rows) {
+  el.innerHTML = rows.map(r => `<tr><td>${r.index}</td><td>mean ${fmt(r.mean)} · median ${fmt(r.median)}</td></tr>`).join('');
+}
+async function loadDemo() {
+  try {
+    const res = await fetch('/api/summary');
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    statusEl.textContent = `Loaded ${Object.keys(data.groups || {}).length} capture groups.`;
+    statusEl.className = 'status success';
+    renderTable(document.getElementById('control-table'), data.groups['Cabbage / control'] || []);
+    renderTable(document.getElementById('test-table'), data.groups['Cabbage / test'] || []);
+    document.getElementById('plots').innerHTML = (data.plots || []).map(name =>
+      `<img src="/api/plots/${encodeURIComponent(name)}" alt="${name}">`).join('');
+    document.getElementById('stepwise').innerHTML = (data.stepwise || []).map(name =>
+      `<img src="/api/stepwise/${encodeURIComponent(name)}" alt="${name}">`).join('');
+  } catch (err) {
+    statusEl.textContent = `Failed: ${err.message || err}`;
+    statusEl.className = 'status error';
+  }
+}
+loadDemo();
+</script>
+</body>
+</html>
