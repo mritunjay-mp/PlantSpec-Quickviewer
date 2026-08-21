@@ -3,18 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PlantSpec Quickviewer Demo</title>
+<title>PlantSpec Quickviewer</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { height:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#0f0f13; color:#e2e2e8; }
   .container { max-width:1100px; margin:0 auto; padding:28px 20px 48px; }
   h1 { font-size:22px; font-weight:700; color:#f0f0f5; margin-bottom:6px; }
-  .subtitle { font-size:13px; color:#888; margin-bottom:8px; line-height:1.5; }
+  .subtitle { font-size:13px; color:#888; margin-bottom:16px; line-height:1.5; }
+  .tabs { display:flex; gap:8px; margin-bottom:16px; }
+  .tab { border:1px solid #2a2a35; background:#18181f; color:#aaa; padding:8px 14px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; }
+  .tab.active { color:#f0f0f5; border-color:#5c6bc0; background:rgba(92,107,192,0.15); }
+  .panel { display:none; margin-bottom:16px; }
+  .panel.active { display:block; }
+  .upload-box { background:#18181f; border:1px dashed #3a3a48; border-radius:12px; padding:18px; }
+  .upload-box p { font-size:13px; color:#888; margin-bottom:12px; line-height:1.5; }
+  .upload-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  input[type=file] { font-size:13px; color:#ccc; max-width:100%; }
+  button { border:none; background:#5c6bc0; color:#fff; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+  button:disabled { opacity:0.5; cursor:not-allowed; }
   .status { display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:10px; margin-bottom:20px; font-size:13px; font-weight:600; background:rgba(66,165,245,0.08); border:1px solid rgba(66,165,245,0.2); color:#90caf9; }
   .status.error { background:rgba(244,67,54,0.08); border-color:rgba(244,67,54,0.2); color:#ef9a9a; }
   .status.success { background:rgba(0,230,118,0.08); border-color:rgba(0,230,118,0.2); color:#69f0ae; }
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
-  @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-bottom:24px; }
   .card { background:#18181f; border:1px solid #2a2a35; border-radius:12px; overflow:hidden; }
   .card-header { padding:14px 18px; border-bottom:1px solid #2a2a35; font-size:12px; font-weight:700; color:#aaa; text-transform:uppercase; letter-spacing:0.8px; }
   .card-body { padding:16px 18px; }
@@ -27,44 +37,135 @@
   .figure-grid, .stepwise { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .figure-grid img, .stepwise img { width:100%; border-radius:8px; border:1px solid #2a2a35; background:#111; }
   @media (max-width:700px) { .figure-grid, .stepwise { grid-template-columns:1fr; } }
+  code { font-size:12px; color:#bbb; }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>PlantSpec Quickviewer</h1>
-  <p class="subtitle">Bundled Cabbage control vs test multispectral demo — NDVI, CWSI, thermal and other ROI indices.</p>
-  <div id="status" class="status">Loading demo analysis…</div>
-  <div class="grid">
-    <div class="card"><div class="card-header">Cabbage / control</div><div class="card-body"><table id="control-table"></table></div></div>
-    <div class="card"><div class="card-header">Cabbage / test</div><div class="card-body"><table id="test-table"></table></div></div>
+  <p class="subtitle">Multispectral ROI analysis — compare control vs test groups with NDVI, CWSI, thermal and other indices.</p>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="demo">Demo dataset</button>
+    <button class="tab" data-tab="upload">Upload your data</button>
   </div>
+
+  <div id="panel-demo" class="panel active">
+    <div class="upload-box">
+      <p>Pre-computed <strong>Cabbage control vs test</strong> demo from bundled multispectral captures.</p>
+      <button id="load-demo-btn" type="button">Load demo</button>
+    </div>
+  </div>
+
+  <div id="panel-upload" class="panel">
+    <div class="upload-box">
+      <p>Upload a <strong>.zip</strong> containing one folder per capture. Each folder needs multispectral bands such as
+        <code>blue.tif green.tif red.tif nir.tif rededge.tif thermal.tif</code>
+        or MicaSense-style <code>IMG_0003_1.tif … IMG_0003_7.tif</code>.
+        Folder names should encode crop and group (e.g. <code>Cabbage_control_IMG_0003</code>).</p>
+      <div class="upload-row">
+        <input id="zip-input" type="file" accept=".zip,application/zip">
+        <button id="upload-btn" type="button">Run analysis</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="status" class="status">Choose demo or upload a ZIP to begin.</div>
+  <div class="grid" id="groups"></div>
   <div class="card" style="margin-bottom:16px;"><div class="card-header">Group comparison plots</div><div class="card-body figure-grid" id="plots"></div></div>
   <div class="card"><div class="card-header">Stepwise workflow</div><div class="card-body stepwise" id="stepwise"></div></div>
 </div>
 <script>
-const statusEl = document.getElementById('status');
-const fmt = (v) => (v == null || Number.isNaN(v)) ? '—' : Number(v).toFixed(3);
-function renderTable(el, rows) {
-  el.innerHTML = rows.map(r => `<tr><td>${r.index}</td><td>mean ${fmt(r.mean)} · median ${fmt(r.median)}</td></tr>`).join('');
+const statusEl = document.getElementById("status");
+const groupsEl = document.getElementById("groups");
+const plotsEl = document.getElementById("plots");
+const stepwiseEl = document.getElementById("stepwise");
+const uploadBtn = document.getElementById("upload-btn");
+const zipInput = document.getElementById("zip-input");
+const loadDemoBtn = document.getElementById("load-demo-btn");
+
+const fmt = (v) => (v == null || Number.isNaN(v)) ? "—" : Number(v).toFixed(3);
+
+function setStatus(text, kind) {
+  statusEl.textContent = text;
+  statusEl.className = "status" + (kind ? " " + kind : "");
 }
+
+function renderTable(rows) {
+  return (rows || []).map(r => `<tr><td>${r.index}</td><td>mean ${fmt(r.mean)} · median ${fmt(r.median)}</td></tr>`).join("");
+}
+
+function renderResults(data) {
+  const groups = Object.keys(data.groups || {});
+  groupsEl.innerHTML = groups.map(name =>
+    `<div class="card"><div class="card-header">${name}</div><div class="card-body"><table>${renderTable(data.groups[name])}</table></div></div>`
+  ).join("");
+
+  const plotUrls = data.plot_urls || (data.plots || []).map(name => `/api/plots/${encodeURIComponent(name)}`);
+  const stepUrls = data.stepwise_urls || (data.stepwise || []).map(name => `/api/stepwise/${encodeURIComponent(name)}`);
+
+  plotsEl.innerHTML = plotUrls.map((url, i) =>
+    `<img src="${url}" alt="${(data.plots || [])[i] || "plot"}">`
+  ).join("");
+  stepwiseEl.innerHTML = stepUrls.map((url, i) =>
+    `<img src="${url}" alt="${(data.stepwise || [])[i] || "step"}">`
+  ).join("");
+
+  setStatus(`${data.title} — ${groups.length} group(s)`, "success");
+}
+
 async function loadDemo() {
-  try {
-    const res = await fetch("/api/summary");
-    if (!res.ok) throw new Error(await res.text());
-    const data = await res.json();
-    statusEl.textContent = `Loaded ${Object.keys(data.groups || {}).length} capture groups.`;
-    statusEl.className = 'status success';
-    renderTable(document.getElementById('control-table'), data.groups['Cabbage / control'] || []);
-    renderTable(document.getElementById('test-table'), data.groups['Cabbage / test'] || []);
-    document.getElementById('plots').innerHTML = (data.plots || []).map(name =>
-      `<img src="/api/plots/${encodeURIComponent(name)}" alt="${name}">`).join('');
-    document.getElementById('stepwise').innerHTML = (data.stepwise || []).map(name =>
-      `<img src="/api/stepwise/${encodeURIComponent(name)}" alt="${name}">`).join('');
-  } catch (err) {
-    statusEl.textContent = `Failed: ${err.message || err}`;
-    statusEl.className = 'status error';
-  }
+  setStatus("Loading demo analysis…");
+  const res = await fetch("/api/summary");
+  if (!res.ok) throw new Error(await res.text());
+  renderResults(await res.json());
 }
+
+async function pollJob(jobId) {
+  for (let i = 0; i < 180; i += 1) {
+    const res = await fetch(`/api/jobs/${jobId}`);
+    if (!res.ok) throw new Error(await res.text());
+    const status = await res.json();
+    setStatus(status.message || status.status || "Running…");
+    if (status.status === "complete") return jobId;
+    if (status.status === "failed") throw new Error(status.message || "Analysis failed");
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  throw new Error("Analysis timed out");
+}
+
+async function uploadAndAnalyze() {
+  const file = zipInput.files && zipInput.files[0];
+  if (!file) throw new Error("Choose a .zip file first");
+
+  uploadBtn.disabled = true;
+  setStatus(`Uploading ${file.name}…`);
+
+  const body = new FormData();
+  body.append("file", file);
+  const res = await fetch("/api/jobs/upload", { method: "POST", body });
+  if (!res.ok) throw new Error(await res.text());
+  const payload = await res.json();
+  setStatus(`Job ${payload.job_id}: analyzing…`);
+
+  await pollJob(payload.job_id);
+  const summaryRes = await fetch(`/api/jobs/${payload.job_id}/summary`);
+  if (!summaryRes.ok) throw new Error(await summaryRes.text());
+  renderResults(await summaryRes.json());
+}
+
+document.querySelectorAll(".tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(`panel-${btn.dataset.tab}`).classList.add("active");
+  });
+});
+
+loadDemoBtn.addEventListener("click", () => loadDemo().catch(err => setStatus(`Failed: ${err.message || err}`, "error")));
+uploadBtn.addEventListener("click", () => uploadAndAnalyze().catch(err => setStatus(`Failed: ${err.message || err}`, "error")).finally(() => { uploadBtn.disabled = false; }));
+
 loadDemo();
 </script>
 </body>

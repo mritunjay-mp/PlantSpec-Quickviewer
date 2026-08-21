@@ -176,6 +176,34 @@ python scripts/run_demo_analysis.py
 Results are written under `paper_figure_outputs/plantspec_quickviewer/runs/<timestamp>/` with
 `results_plot/`, `results_csv/`, and `stepwise/` folders.
 
+## Web demo + upload pipeline (Alchemy / Cloud Run)
+
+The `api/` service serves:
+
+- **Demo tab** — pre-baked Cabbage control vs test results (`GET /api/summary`)
+- **Upload tab** — analyze your own multispectral ZIP (`POST /api/jobs/upload`)
+
+### Upload input
+
+Zip one folder per capture. Each folder must include the required bands, e.g.:
+
+```text
+my_dataset.zip
+  Cabbage_control_IMG_0003/
+    blue.tif, green.tif, red.tif, nir.tif, rededge.tif, thermal.tif
+  Cabbage_test_IMG_0005/
+    blue.tif, green.tif, red.tif, nir.tif, rededge.tif, thermal.tif
+```
+
+The headless pipeline uses a **full-image ROI** (same defaults as `scripts/run_demo_analysis.py`) — good for quick group comparisons; for custom ROIs use the desktop GUI.
+
+### API flow
+
+1. `POST /api/jobs/upload` — multipart `.zip` → `{ job_id, status: "running" }`
+2. `GET /api/jobs/{job_id}` — poll until `status: "complete"`
+3. `GET /api/jobs/{job_id}/summary` — same JSON shape as demo summary
+4. `GET /api/jobs/{job_id}/plots/{filename}` and `/stepwise/{filename}` — PNG artifacts
+
 See `CONTRIBUTORS.md` for upstream authors and additional contributors.
 
 ## Downloads

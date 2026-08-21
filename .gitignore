@@ -9,6 +9,7 @@ build_*/
 dist_*/
 
 paper_figure_outputs/
+api/job_runs/
 *.spec
 
 *.zip
