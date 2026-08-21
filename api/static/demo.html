@@ -49,7 +49,7 @@ function renderTable(el, rows) {
 }
 async function loadDemo() {
   try {
-    const res = await fetch('/api/summary');
+    const res = await fetch("/api/summary");
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
     statusEl.textContent = `Loaded ${Object.keys(data.groups || {}).length} capture groups.`;
